@@ -8,6 +8,8 @@ body{
     border: 1px solid chartreuse;
     width: fit-content;
     display: grid;
+    grid-template-columns: repeat(var(--GRID_WIDTH), max-content);
+
 }
 
 #background{
@@ -26,6 +28,27 @@ body{
 
 }
 
+#items{
+    grid-area: 1 / 1;
+  display: grid;
+  position: relative;
+  grid-template-columns: repeat(var(--GRID_WIDTH), var(--TILE_SIZE));
+  grid-template-rows: repeat(var(--GRID_HEIGHT), var(--TILE_SIZE));
+}
+
+.item{
+    width: var(--TILE_SIZE);
+    aspect-ratio: 1 / 1;
+    background-size: 100%;
+    image-rendering: pixelated;
+
+    grid-area: calc(var(--row) + 1) / calc(var(--col) + 1);
+}
+
+.item.gold{
+    background-image: url('simple-assets/images/items/gold.png');
+}
+
 .tile.path{
     background-image: url('simple-assets/images/tiles/path.png');
 }
@@ -36,6 +59,18 @@ body{
 
 .tile.door{
     background-image: url('simple-assets/images/tiles/door.png');
+}
+
+.tile.doorOpen{
+    background-image: url('simple-assets/images/tiles/door_open.png');
+}
+
+.tile.floor{
+    background-image: url('simple-assets/images/tiles/floor_stone.png');
+}
+
+.tile.lava{
+    background-image: url('simple-assets/images/tiles/lava.png');
 }
 
 .tile.grass{
@@ -51,6 +86,27 @@ body{
 
 .tile.tree{
     background-image: url('simple-assets/images/tiles/tree.png');
+}
+
+.tile.flowers{
+    background-image: url('simple-assets/images/tiles/flowers.png');
+}
+
+.tile.bridgeHori{
+    background-image: url('simple-assets/images/tiles/floor_planks.png');
+    transform: rotate(90deg)
+}
+
+.tile.bridgeVert{
+    background-image: url('simple-assets/images/tiles/floor_planks.png');
+}
+
+.tile.fenceHori{
+    background-image: url('simple-assets/images/tiles/fence_hori.png');
+}
+
+.tile.fenceVert{
+    background-image: url('simple-assets/images/tiles/fence_vert.png');
 }
 
 #items{

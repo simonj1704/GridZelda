@@ -9,9 +9,11 @@ function start(){
     document.addEventListener("keyup", keyUp);
 
     createTiles();
+    createItems();
     displayTiles();
     requestAnimationFrame(tick);
 }
+
 
 //#region CONTROLLER 
 
@@ -23,6 +25,8 @@ function tick(timestamp){
   lastTimestamp = timestamp;
 
   movePlayer(deltatime);
+
+  checkForItems();
 
   displayPlayerposition();
   displayPlayerAnimation();  
@@ -177,11 +181,15 @@ function canMoveToMore(pos){
     switch(tileType){
       case 0:
       case 1:
+      case 3:
         break;
       case 2:
       case 3:
       case 4:
       case 5:
+      case 10:
+      case 11:
+      case 14:
         canMove = false;
         break;
     }
@@ -194,7 +202,7 @@ function canMoveToMore(pos){
 
 const player = {
     x: 10,
-    y: 10,
+    y: 550,
     regX: 10,
     regY: 15,
     hitbox: {
@@ -217,16 +225,73 @@ const controls = {
     right: false
 }
 
+const itemsGrid = [
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+]
+
+function checkForItems(){
+  const items = getItemsUnderPlayer();
+
+  if(items.length > 0){
+    console.log(items)
+    console.log(`There are ${items.length} items under the player`)
+  }
+}
+
+function getItemsUnderPlayer(){
+  const coords = getTilesUnderPLayer(player);
+  const items = [];
+
+  coords.forEach(coord => {
+    const item = itemsGrid[coord.row][coord.col];
+    if(item !== 0){
+      items.push(item);
+    }
+  });
+
+  return items;
+}
+
 const tiles = [
-  [0,1,0,0,0,0,0,4,0,0,2,2,2,2,2,0],
-  [0,1,0,5,5,0,0,4,0,0,2,0,6,0,2,0],
-  [0,1,0,5,5,0,0,4,0,0,2,0,0,0,2,0],
-  [0,1,0,0,0,0,0,4,0,0,2,2,3,2,2,0],
-  [0,1,0,0,0,0,0,4,0,0,0,0,1,0,0,0],
-  [0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
-  [0,0,0,0,0,0,0,4,0,0,0,0,1,0,0,0],
-  [0,0,5,5,5,0,0,4,0,0,0,0,1,0,0,0],
-  [0,0,5,6,5,0,0,4,0,0,0,0,1,0,0,0]
+  [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+  [0,0,0,0,7,0,4,4,0,0,0,0,0,0,0,0,5,0,0,0],
+  [2,2,2,2,2,0,4,4,0,5,1,1,1,1,1,1,1,1,1,1],
+  [2,6,13,6,2,0,4,4,7,0,1,1,1,1,1,1,1,1,1,1],
+  [2,13,13,13,2,0,4,4,0,0,1,1,10,10,10,10,10,10,10,10],
+  [2,13,13,13,2,0,4,4,0,0,1,1,11,7,2,2,2,2,2,0],
+  [2,13,13,13,2,0,4,4,0,0,1,1,11,7,2,13,13,13,2,0],
+  [2,13,13,13,2,0,4,4,0,0,1,1,11,7,2,13,6,13,2,7],
+  [2,13,13,13,2,0,4,4,0,0,1,1,11,7,2,13,13,13,2,0],
+  [2,2,3,2,2,0,4,4,7,0,1,1,11,0,2,13,13,13,2,0],
+  [5,7,1,7,5,0,4,4,0,0,1,1,11,5,2,2,3,2,2,5],
+  [0,7,1,7,0,0,4,4,0,0,1,1,10,10,10,10,1,10,10,10],
+  [0,7,1,7,0,0,4,4,0,0,1,1,1,1,1,1,1,0,0,0],
+  [0,11,1,11,0,0,4,4,0,0,1,1,10,10,10,10,10,10,10,10],
+  [0,11,1,11,0,0,4,4,0,0,1,1,11,14,14,14,14,14,14,0],
+  [0,5,1,5,0,0,4,4,0,0,1,1,11,14,0,0,0,0,14,0],
+  [1,1,1,1,1,1,8,8,1,1,1,1,1,8,0,5,6,0,14,5],
+  [1,1,1,1,1,1,8,8,1,1,1,1,11,14,0,0,0,0,14,0],
+  [0,0,0,0,0,0,4,4,0,0,1,1,11,14,14,14,14,14,14,0],
+  [5,7,7,7,7,0,4,4,0,0,1,1,11,0,0,0,0,0,5,0], 
 ]
 
 const GRID_width = tiles[0].length;
@@ -318,6 +383,8 @@ function displayPlayerAnimation(){
 }
 
 function createTiles(){
+  const gameField = document.querySelector("#gamefield");
+
   const background = document.querySelector("#background");
 
   for(let row = 0; row < GRID_height; row++){
@@ -327,11 +394,37 @@ function createTiles(){
     
       background.append(tile);
 
+      
+      }
+  }
       background.style.setProperty("--GRID_WIDTH", GRID_width);
       background.style.setProperty("--GRID_HEIGHT", GRID_height);
       background.style.setProperty("--TILE_SIZE", tile_size + "px");
+
+      gameField.style.setProperty("--GRID_WIDTH", GRID_width);
+      gameField.style.setProperty("--GRID_HEIGHT", GRID_height);
+      gameField.style.setProperty("--TILE_SIZE", tile_size + "px");
+    
+}
+
+function createItems(){
+  const items = document.querySelector("#items");
+  
+
+  for(let row = 0; row < itemsGrid.length; row++){
+    for(let col = 0; col < itemsGrid[row].length; col++){
+      if(itemsGrid[row][col] !== 0){
+        const item = document.createElement("div");
+      item.classList.add("item");
+      item.classList.add("gold");
+      item.style.setProperty("--row", row);
+      item.style.setProperty("--col", col);
+      items.append(item);
+      }
+      
     }
   }
+  
 }
 
 function displayTiles(){
@@ -356,6 +449,14 @@ function getClassForTileType(tile){
     case 4: return "water";
     case 5: return "tree";
     case 6: return "chest";
+    case 7: return "flowers";
+    case 8: return "bridgeHori";
+    case 9: return "bridgeVert";
+    case 10: return "fenceHori";
+    case 11: return "fenceVert";
+    case 12: return "doorOpen";
+    case 13: return "floorStone";
+    case 14: return "lava";
   }
 }
 
