@@ -36,6 +36,24 @@ body{
   grid-template-rows: repeat(var(--GRID_HEIGHT), var(--TILE_SIZE));
 }
 
+.take{
+    animation: itemDisappear 0.5s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+
+@keyframes itemDisappear{
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-100%);   
+    }
+    
+}
+
 .item{
     width: var(--TILE_SIZE);
     aspect-ratio: 1 / 1;

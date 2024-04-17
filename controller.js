@@ -42,6 +42,8 @@ function keyPress(event) {
     controls.up = true;
   } else if(event.key === "ArrowDown") {
     controls.down = true;
+  } else if(event.key === " "){
+    controls.use = true;
   }
 }
 
@@ -54,6 +56,8 @@ function keyUp(event) {
     controls.up = false;
   } else if(event.key === "ArrowDown") {
     controls.down = false;
+  } else if(event.key === " "){
+    controls.use = false;
   }
 }
 //#endregion CONTROLLER
@@ -215,14 +219,16 @@ const player = {
     topspeed: 120,
     acceleration: 120,
     moving: false,
-    direction: undefined
+    direction: undefined,
+    isTaking: false
 }
 
 const controls = {
     up: false,
     down: false,
     left: false,
-    right: false
+    right: false,
+    use: false
 }
 
 const itemsGrid = [
@@ -242,19 +248,45 @@ const itemsGrid = [
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+  [0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 ]
 
+const visualItemGrid = [];
+
 function checkForItems(){
   const items = getItemsUnderPlayer();
+  if(items.length > 0 && controls.use && !player.isTaking){
+    player.isTaking = true;
 
-  if(items.length > 0){
-    console.log(items)
-    console.log(`There are ${items.length} items under the player`)
+    items.forEach(item => {
+      takeItem(item)
+    })
+  };
+  if(player.isTaking && !controls.use){
+    player.isTaking = false;
   }
+  //Right now you can press space and keep holding it and you will pick up the first item you walk over
+  //To make it so you cant do that you need to add another boolean to check if the player is holding space
+}
+
+function takeItem({row, col}){
+  const item = itemsGrid[row][col];
+
+  if(item !== 0){
+    itemsGrid[row][col] = 0;
+
+    //Get visualItem from html and add css class
+    const visualItem = visualItemGrid[row][col];
+
+    visualItem.classList.add("take");
+    document.querySelector("#sound_coins").play();
+
+  }
+
+
 }
 
 function getItemsUnderPlayer(){
@@ -264,7 +296,7 @@ function getItemsUnderPlayer(){
   coords.forEach(coord => {
     const item = itemsGrid[coord.row][coord.col];
     if(item !== 0){
-      items.push(item);
+      items.push({row: coord.row, col: coord.col});
     }
   });
 
@@ -308,7 +340,6 @@ function getTileAtCoord({row, col}){
 }
 
 function getTilesUnderPLayer(player){
-  const tiles = [];
   const coords = [];
 
   const topLeft = {x: player.x - player.regX + player.hitbox.x, y: player.y};
@@ -316,14 +347,17 @@ function getTilesUnderPLayer(player){
   const bottomLeft = {x: player.x - player.regX + player.hitbox.x, y: player.y + player.hitbox.h};
   const bottomRight = {x: player.x - player.regX + player.hitbox.x + player.hitbox.w, y: player.y + player.hitbox.h};
   
-  coords.push(coordFromPos(topLeft));
-  coords.push(coordFromPos(topRight));
-  coords.push(coordFromPos(bottomLeft));
-  coords.push(coordFromPos(bottomRight));
-  tiles.push(getTileAtCoord(coordFromPos(topLeft)));
-  tiles.push(getTileAtCoord(coordFromPos(topRight)));
-  tiles.push(getTileAtCoord(coordFromPos(bottomLeft)));
-  tiles.push(getTileAtCoord(coordFromPos(bottomRight)));
+  const coordTopLeft = coordFromPos(topLeft);
+  const coordTopRight = coordFromPos(topRight);
+  const coordBottomLeft = coordFromPos(bottomLeft);
+  const coordBottomRight = coordFromPos(bottomRight);
+  
+
+  coords.push(coordTopLeft);
+  coords.push(coordTopRight);
+  coords.push(coordBottomLeft);
+  coords.push(coordBottomRight);
+
   return coords;
 }
 
@@ -412,6 +446,7 @@ function createItems(){
   
 
   for(let row = 0; row < itemsGrid.length; row++){
+    visualItemGrid[row] = [];
     for(let col = 0; col < itemsGrid[row].length; col++){
       if(itemsGrid[row][col] !== 0){
         const item = document.createElement("div");
@@ -420,6 +455,8 @@ function createItems(){
       item.style.setProperty("--row", row);
       item.style.setProperty("--col", col);
       items.append(item);
+
+      visualItemGrid[row][col] = item;
       }
       
     }
